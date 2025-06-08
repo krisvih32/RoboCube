@@ -1,13 +1,24 @@
+# from mpdb import Mpdb
+
+# def test():
+#     a = 42
+#     Mpdb().set_trace()  # Breakpoint here
+#     print(a)
+
+# test()
+
 from pybricks.pupdevices import Motor, ColorSensor
 from pybricks.parameters import Port, Direction, Stop, Button, Color
 from pybricks.hubs import PrimeHub
-from pybricks.tools import wait
+from pybricks.tools import wait, StopWatch
+stopwatch = StopWatch()
+stopwatch.resume()
 
 hub = PrimeHub()  # If your broadcasting isn't working, consult this line
-class _Robot:
+class Robot:
   def __init__(self):
     # Print initializing robot 
-    print(("\n"*100)+"""___       _ _   _       _ _     _                         _          \n|_ _|_ __ (_) |_(_) __ _| (_)___(_)_ __   __ _   _ __ ___ | |__   ___ | |_ \n| || '_ \| | __| |/ _` | | |_  / | '_ \ / _` | | '__/ _ \| '_ \ / _ \| __|\n| || | | | | |_| | (_| | | |/ /| | | | | (_| | | | | (_) | |_) | (_) | |_ \n|___|_| |_|_|\__|_|\__,_|_|_/___|_|_| |_|\__, | |_|  \___/|_.__/ \___/ \__|\n|___/                             """)
+    print(("\n"*100)+"""___       _ _   _       _ _     _                         _          \n|_ _|_ __ (_) |_(_) __ _| (_)___(_)_ __   __ _   _ __ ___ | |__   ___ | |_ \n| || '_ \\| | __| |/ _` | | |_  / | '_ \\ / _` | | '__/ _ \\| '_ \\ / _ \\| __|\n| || | | | | |_| | (_| | | |/ /| | | | | (_| | | | | (_) | |_) | (_) | |_ \n|___|_| |_|_|\__|_|\__,_|_|_/___|_|_| |_|\__, | |_|  \___/|_.__/ \___/ \__|\n|___/                             """)
     # Turn off display
     hub.display.off()
     # Set the power button to red
@@ -17,9 +28,8 @@ class _Robot:
     self.hold = Motor(Port.A, Direction.CLOCKWISE, reset_angle=False, profile=5)
     self.spin = Motor(Port.C, Direction.CLOCKWISE, reset_angle=False, profile=5)
     self.move = Motor(Port.E, Direction.CLOCKWISE, reset_angle=False, profile=5)
-    self.hold.run_target(speed=100, target_angle=0, then=Stop.HOLD, wait=True)
+    self.holddown()
     self.spin.run_target(speed=100, target_angle=0, then=Stop.HOLD, wait=True)
-    self.move.run_target(speed=100, target_angle=0, then=Stop.HOLD, wait=True)
     
     self.RED_CLOSE = Color(349, 90, 72)
     self.BLUE_CLOSE = Color(197, 84, 68)
@@ -70,32 +80,43 @@ class _Robot:
     for sensor in sensors:
       sensor.detectable_colors(colors=list(self.COLOR_MAP.keys()))
 
-    self.XI_SPEED = 25
+    self.XI_SPEED = 25 # Change if needed
     self.XI_SLEEP_MS = 300
 
   def holdup(self):
-    self.move.run_target(speed=100, target_angle=318, then=Stop.HOLD, wait=True)
-    self.hold.run_target(speed=100, target_angle=318, then=Stop.HOLD, wait=True)
+    timeout_ms = 1000  # Timeout in milliseconds
+    start_time = stopwatch.time()
+
+    while True:
+      if stopwatch.time() - start_time > timeout_ms: break
+      self.move.run_target(speed=100, target_angle=-50, then=Stop.HOLD, wait=True)
+      self.hold.run_target(speed=100, target_angle=-35, then=Stop.HOLD, wait=True)
+      wait(100)  # Avoid busy-waiting
+    
+  def holddown(self):
+    self.hold.run_target(speed=100, target_angle=0, then=Stop.HOLD, wait=True)
+    self.move.run_target(speed=100, target_angle=0, then=Stop.HOLD, wait=True)
   def turn_yi(self):
     self.spin.run_angle(speed=650, rotation_angle=90, then=Stop.HOLD, wait=True)
   def turn_Uw(self):
     self.holdup()
     self.turn_yi()
+    
   def turn_xi(self):
-    self.hold.hold()
-    self.move.run_angle(speed=self.XI_SPEED, rotation_angle=316, then=Stop.HOLD, wait=True)
-    hub.system.wait(self.XI_SLEEP_MS)
-    self.hold.run_angle(speed=self.XI_SPEED, rotation_angle=300, then=Stop.HOLD, wait=True)
-    hub.system.wait(self.XI_SLEEP_MS)
-    self.move.run_angle(speed=self.XI_SPEED, rotation_angle=329, then=Stop.HOLD, wait=True)
-    hub.system.wait(self.XI_SLEEP_MS)
-    self.move.run_angle(speed=self.XI_SPEED, rotation_angle=335, then=Stop.HOLD, wait=True)
-    hub.system.wait(self.XI_SLEEP_MS)
-    self.move.run_angle(speed=self.XI_SPEED, rotation_angle=355, then=Stop.HOLD, wait=True)
-    hub.system.wait(self.XI_SLEEP_MS)
-    self.hold.run_angle(speed=self.XI_SPEED, rotation_angle=300, then=Stop.HOLD, wait=True)
-    hub.system.wait(10000)
-    self.hold.hold()
+    self.holddown()
+    self.hold.run_target(speed=self.XI_SPEED, target_angle=-88, then=Stop.HOLD, wait=True)
+    self.move.run_target(speed=self.XI_SPEED, target_angle=-15, then=Stop.HOLD, wait=True)
+    self.holddown()
+    self.hold.run_target(speed=self.XI_SPEED, target_angle=-21, then=Stop.HOLD, wait=True)
+    self.move.run_target(speed=self.XI_SPEED, target_angle=-25, then=Stop.HOLD, wait=True)
+    self.hold.run_target(speed=self.XI_SPEED, target_angle=-38, then=Stop.HOLD, wait=True)
+    self.move.run_target(speed=self.XI_SPEED, target_angle=-42, then=Stop.HOLD, wait=True)
+    self.hold.run_target(speed=self.XI_SPEED, target_angle=-58, then=Stop.HOLD, wait=True)
+    self.move.run_target(speed=self.XI_SPEED, target_angle=16, then=Stop.HOLD, wait=True)
+    self.holdup()
+    self.holddown()
+
+
   def check_color(self, sensor):
     # Detect and print the base color name
     detected_color = sensor.color()
@@ -109,12 +130,12 @@ class _Robot:
   def set_power_color(self, color):
     color = eval("Color." + color.upper())
     hub.light.on(color)
-  def wait_ms(self, ms):
-    wait(ms)
 
-robot = _Robot()
-# All the boring stuff
-# The POV is with the spin on the back
+
+
+
+
 # Spin zero is when the spin is aligned 90 degrees
 # Move zero is marked when the two parallel black pieces are vertical
-# Hold zero is marked when the light blue piece is vertical
+# Hold zero is marked when the light blue piece is verticalP
+robot = Robot()

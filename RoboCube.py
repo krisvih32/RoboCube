@@ -4,9 +4,12 @@ from pybricks.parameters import Port, Direction, Stop, Button, Color
 print("Import finished")
 #robot.holdup()
 #
+robot.turn_xi() 
+while True: ...
 while True:
   for i in range(4):
     robot.turn_yi()
+    print("Turned y")
     if robot.check_color(robot.mid_mid_sensor) == "white":
       break
   if i == 4:
